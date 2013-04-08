@@ -1,0 +1,121 @@
+{{>header.html}}
+
+<h1>smtpbin{{#title}} - {{title}}{{/title}}</h1>
+
+<div class='email'>
+
+  <dl class='header'>
+    <div>
+      <dt>From:</dt>
+      <dd><a href='http://github.com/agjohnson'>aj@ohess.org</a></dd>
+    </div>
+
+    <div>
+      <dt>To:</dt>
+      <dd>postmaster@smtpbin.org</dd>
+    </div>
+
+    <div>
+      <dt>Subject:</dt>
+      <dd>Documentation on smtpbin</dd>
+    </div>
+
+    <div>
+      <dt>X-Mailer:</dt>
+      <dd><a href='http://github.com/agjohnson/posthook'>posthook</a></dd>
+    </div>
+
+    <div>
+      <dt>X-Source:</dt>
+      <dd><a href='http://github.com/agjohnson/smtpbin'>http://github.com/agjohnson/smtpbin</a></dd>
+    </div>
+  </dl>
+
+
+  <p></p>
+
+  <h2>Synopsis</h2>
+
+  <p>Use smtpbin for email integration and bounce testing:</p>
+
+  <ul>
+    <li>Generate <i>5xx</i> and <i>4xx</i> errors per recipient</li>
+    <li>JSON API for delivery information and statistics</li>
+    <li>Create a mail bin by specifying an <b><a href='#header-id'>X-Smtpbin-Id</a></b> header</li>
+  </ul>
+
+  <p>
+    Mail bins collect statistics and store messages for viewing through manual
+    links:
+  </p>
+
+  <ul>
+    <li><a href='/bin/foobar'>/bin/:id</a> - list view for bin <b>id</b></li>
+    <li><a href='/bin/foobar.json'>/bin/:id.json</a> - return bin <b>id</b> as JSON</li>
+    <li><a href='/bin/foobar/stats.json'>/bin/:id/stats.json</a> - return stats for bin <b>id</b> as JSON</li>
+    <li><a href='/bin/random'>/bin/random</a> - special redirect to a random bin id</li>
+    <li><a href='/bin/random.json'>/bin/random.json</a> - return random bin as JSON</li>
+    <li><a href='/message/foobar'>/message/:id</a> - view message <b>id</b> as plain</li>
+    <li><a href='/message/foobar.html'>/message/:id.html</a> - view message <b>id</b> as html</li>
+    <li><a href='/message/foobar.txt'>/message/:id.txt</a> - view message <b>id</b> as raw</li>
+    <li><a href='/message/foobar.json'>/message/:id.json</a> - return message <b>id</b> as JSON</li>
+  </ul>
+
+  <h2>Recipients</h2>
+
+  <p>
+    Recipients are accepted or rejected based on the recipient extension,
+    specified after the local part of the email address. The local part of the
+    email is disregarded, only the extension and, if accepted, headers matter.
+  </p>
+
+  <dl class='doc'>
+    <dt>foo@smtpbin.org, foobar<b>+250</b>@smtpbin.org, foo<b>+ok</b>@smtpbin.org</dt>
+    <dd>
+      Return okay (250) response from SMTP server. This will accept mail for
+      processing. If additional headers are added, they will be processed at
+      this stage.
+    </dd>
+
+    <dt>foo<b>+450</b>@smtpbin.org, foo<b>+defer</b>@smtpbin.org</dt>
+    <dd>Return temporary failure, mailbox unavailable response.</dd>
+
+    <dt>foo<b>+451</b>@smtpbin.org</dt>
+    <dd>Return temporary local error response.</dd>
+
+    <dt>foo<b>+452</b>@smtpbin.org</dt>
+    <dd>Return temporary insufficient storage response</dd>
+
+    <dt>foo<b>+500</b>@smtpbin.org, foo<b>+reject</b>@smtpbin.org</dt>
+    <dd>Return mailbox unavailable response</dd>
+  </dl>
+
+  <h2>Headers</h2>
+
+  <p>
+    By specifying headers in the generated email, statistics can be generated
+    and the message will be stored for a short period of time for viewing.
+  </p>
+
+  <dl class='doc'>
+    <a name='header-id'/>
+    <dt><b>X-Smtpbin-Id:</b> &lt;id&gt;</dt>
+    <dd>
+      Set the mail bin to <b>id</b>, which is an alphanumeric string of any
+      reasonable length. This will store the message temporarily under the bin
+      <b>id</b> list, which generates a list of messages viewable as plain,
+      html, or raw text.
+    </dd>
+  </dl>
+
+  <p>
+    Regards,<br/>
+    Anthony<br/>
+    --<br/>
+    aj@ohess.org<br/>
+    <a href='http://ohess.org'>http://ohess.org</a>
+  </p>
+
+</div>
+
+{{>footer.html}}

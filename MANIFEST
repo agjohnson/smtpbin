@@ -1,0 +1,24 @@
+app.psgi
+Build.PL
+Changes
+lib/SMTPbin.pm
+lib/SMTPbin/Backend.pm
+lib/SMTPbin/Model.pm
+lib/SMTPbin/Model/Bin.pm
+lib/SMTPbin/Model/Message.pm
+lib/SMTPbin/Pages.pm
+MANIFEST			This list of files
+README
+static/style.css
+t/00-load.t
+t/boilerplate.t
+t/manifest.t
+t/pod-coverage.t
+t/pod.t
+view/404.html
+view/500.html
+view/bin.html
+view/footer.html
+view/header.html
+view/index.html
+view/message.html

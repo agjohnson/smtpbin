@@ -1,0 +1,55 @@
+{{>header.html}}
+
+Bin Messages:
+
+{{^messages}}
+<div class='email'>
+  <dl class='header'>
+    <div>
+      <dt>X-Protip:</dt>
+      <dd>Add the header X-Smtpbin-Id to collect mail in this bin.</dd>
+    </div>
+
+    <div>
+      <dt>X-Smtpbin-Id:</dt>
+      <dd>{{bin_id}}</dd>
+    </div>
+  </dl>
+</div>
+{{/messages}}
+
+<ul class='bin'>
+{{#messages}}
+  <li class='email'>
+    <dl class='header'>
+      <div>
+        <dt>View</dt>
+        <dd>
+          <a href='/message/{{id}}'>plain</a><span>,</span>
+          <a href='/message/{{id}}.html'>html</a>
+          <span>or</span>
+          <a href='/message/{{id}}.txt'>raw</a>
+        </dd>
+      </div>
+      <div>
+        <dt>Subject</dt>
+        <dd>{{subject}}</dd>
+      </div>
+      {{#date}}
+      <div>
+        <dt>Date</dt>
+        <dd>{{.}}</dd>
+      </div>
+      {{/date}}
+      {{#from}}
+      <div>
+        <dt>From</dt>
+        <dd>{{.}}</dd>
+      </div>
+      {{/from}}
+    </dl>
+  </li>
+{{/messages}}
+</ul>
+
+{{>footer.html}}

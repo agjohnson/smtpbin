@@ -1,0 +1,138 @@
+/* Reset */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p,
+blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img,
+ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center,
+dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody,
+tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure,
+figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol, ul {
+  list-style: none;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after, q:before, q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Style */
+body {
+  width: 50em;
+  margin: 2em auto;
+  font-family: 'Droid Mono', monospace;
+  font-size: .90em;
+}
+
+a:link { color: blue; }
+a:visited { color: blue; }
+
+h1 {
+  margin: 1em 0em;
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
+/* Email */
+.email {
+  font-size: 1em;
+  line-height: 1.2em;
+}
+
+.email h2, h2 {
+  margin: 1.2em 0em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.email p {
+  margin: 1.2em 0em;
+}
+
+.email ul {
+  margin: 1em 1em;
+}
+
+.email ul > li {
+}
+
+.email ul > li:before {
+  content: '* ';
+}
+
+.email pre {
+  font-style: italic;
+}
+
+/* List section */
+.email dl {
+    margin: 1em 0em;
+}
+
+.email dl.doc dt {
+    margin: 1em 0em 0em 0em;
+    font-style: italic;
+}
+.email dl.doc dt:before {
+    content: '> ';
+}
+
+.email dl.doc dd {
+    margin: 0em 0em 1em 2em;
+}
+
+/* Headers */
+.email dl.header {
+    overflow: hidden;
+}
+
+.email dl.header dt {
+    display: inline;
+    width: auto;
+    clear: left;
+    font-weight: bold;
+}
+
+.email dl.header dd {
+    display: inline;
+    width: auto;
+    margin-left: 0em;
+}
+
+/* General formats */
+.email b {
+    font-weight: bold;
+}
+
+.email i {
+    font-style: italic;
+}
+
+/* Bin listing */
+ul.bin li {
+    display: block;
+    margin: 1.5em 0em;
+    padding: 0em .5em;
+}
+
+ul.bin li > dl.header {
+    margin: 0em;
+}

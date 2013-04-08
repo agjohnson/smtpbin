@@ -1,0 +1,18 @@
+{{>header.html}}
+
+Message:
+
+<div class='email'>
+  <dl class='headers header' style='color: #998'>
+  {{#headers}}
+    <div>
+      <dt>{{header}}:</dt>
+      <dd>{{value}}</dd>
+    </div>
+  {{/headers}}
+  </dl>
+
+  <p>{{body}}</p>
+</div>
+
+{{>footer.html}}

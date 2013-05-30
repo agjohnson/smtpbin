@@ -31,40 +31,14 @@ get '^/index$' => sub {
     };
 };
 
-get '^/test$' => sub {
-    return sub {
-        my $respond = shift;
-        my $msg = SMTPbin::Model::Message->new(
-            id => 'test',
-            bin => 'test',
-            headers => [
-                { header => 'fuck', value => 'asldkh' },
-                { header => 'Subject', value => 'AWESOME' }
-            ],
-            parts => [
-                {
-                    'headers' => {
-                        'Content-type' => 'text/html',
-                        'Content-Encoding' => 'utf8',
-                    },
-                    'body' => 'FLKDSULGKDSGL'
-                },
-            ],
-            meta => {}
-        );
-
-        my $cv = $msg->save;
-        $cv->cb(sub { $respond->(render 'OK') });
-        return $cv;
-    };
-};
-
 get '^/message/(\w+)$' => sub {
     my ($req, $id) = @_;
     return sub {
         my $respond = shift;
-        my $cv = SMTPbin::Model::Message->find($id, sub {
+        logger(debug => sprintf('Searching for message: %s', $id));
+        my $cv; $cv = SMTPbin::Model::Message->find($id, sub {
             my $msg = shift->recv;
+            undef $cv;
             if (defined $msg) {
                 return $respond->(render template 'message.html', {
                     body => 'BODY',
@@ -75,7 +49,6 @@ get '^/message/(\w+)$' => sub {
                 return $respond->(abort(404));
             }
         });
-        return $cv;
     }
 };
 
@@ -83,8 +56,10 @@ get '^/bin/(\w+)$' => sub {
     my ($req, $id) = @_;
     return sub {
         my $respond = shift;
-        my $cv = SMTPbin::Model::Bin->find($id, sub {
+        logger(debug => sprintf('Searching for bin: %s', $id));
+        my $cv; $cv = SMTPbin::Model::Bin->find($id, sub {
             my $bin = shift->recv;
+            undef $cv;
             if (defined $bin) {
                 return $respond->(render template 'bin.html', {
                     id => $id,
@@ -92,9 +67,8 @@ get '^/bin/(\w+)$' => sub {
                 });
             }
             else {
-                $respond->(abort(404));
+                return $respond->(abort(404));
             }
         });
-        return $cv;
     }
 };

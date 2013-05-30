@@ -9,21 +9,26 @@ use AnyEvent;
 use AnyEvent::Redis;
 use JSON qw//;
 
+use SMTPbin::Backend qw/logger/;
 
-my $DB;
+
+our $DB;
 
 sub connect {
     my $class = shift;
+    logger(info => 'Connecting to Redis');
     $SMTPbin::Model::DB = AnyEvent::Redis->new(
-        on_error => sub { warn "Error: @_" },
-        on_cleanup => sub { warn "Connection: @_" },
+        on_error => sub { logger(error => "Error on connection to Redis: @_") },
+        on_cleanup => sub { logger(info => "Connection cleanup to Redis: @_") },
         @_
     );
 }
 
 sub db {
     my $self = shift;
-    return $SMTPbin::Model::DB;
+    my $_db = $SMTPbin::Model::DB;
+    $self->connect if (!defined $_db);
+    return $_db;
 }
 
 # Override functions

@@ -38,6 +38,7 @@ sub app {
             path => sub { s#^/static/## },
             root => 'static/'
         );
+        enable('Debug');
         mount '/' => \&SMTPbin::Backend::app;
     }
 }

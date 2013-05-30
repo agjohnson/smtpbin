@@ -9,15 +9,21 @@ use Plack::Request;
 use Text::Caml;
 use FindBin;
 use Cwd;
+use AnyEvent::Log;
 
 use Exporter 'import';
 our @EXPORT = qw/
     route get post put delete
     template render abort
+    logger
 /;
 
 our $Path = Cwd::abs_path($FindBin::Bin . "/view");
 our $Routes = {};
+
+our $Logger = AnyEvent::Log::ctx;
+$Logger->log_to_file('errlog');
+
 
 sub app {
     my $env = shift;
@@ -93,6 +99,11 @@ sub render ($) {
         {'Content-type' => 'text/html'},
         [$val]
     )->finalize;
+}
+
+# Logging
+sub logger ($$) {
+    $Logger->log(@_);
 }
 
 1;

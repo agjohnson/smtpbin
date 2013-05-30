@@ -13,6 +13,7 @@ my $builder = Module::Build->new(
     },
     build_requires => {
         'Test::More' => 0,
+        'Test::MockModule' => 0
     },
     requires => {
         'perl' => 5.010,
@@ -25,7 +26,10 @@ my $builder = Module::Build->new(
         'Data::UUID' => 0,
         'Mouse' => 0,
         'AnyEvent::Redis' => 0,
-        'AnyEvent' => 0
+        'AnyEvent' => 0,
+        'AnyEvent::SMTP' => 0,
+        'AnyEvent::Log' => 0,
+        'Email::MIME' => 0
     },
     add_to_cleanup => [ 'SMTPbin-*' ],
     create_makefile_pl => 'traditional',

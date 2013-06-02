@@ -4,10 +4,12 @@ use warnings;
 
 use Test::MockModule;
 use Test::More;
-plan tests => 10;
+plan tests => 13;
 
 use SMTPbin::Model::Message;
+use SMTPbin::Model::Email;
 use Data::Dumper;
+
 
 # TODO Mock redis here
 {
@@ -52,10 +54,14 @@ use Data::Dumper;
     SMTPbin::Model::Message->connect;
     $msg = SMTPbin::Model::Message->new(
         id => 'test',
-        body => 'test',
-        parts => [],
         bin => 'test',
-        headers => []
+        email => SMTPbin::Model::Email->create(
+            id => 'test',
+            header => [
+                'X-SMTPbin-Id' => 'test',
+            ],
+            body => 'test'
+        )
     );
     my $cv1 = $msg->save;
     $cv1->cb(sub {
@@ -63,26 +69,33 @@ use Data::Dumper;
     });
     $cv1->recv;
 
+    # Email encoding
+    my $json = $msg->json_attr('email');
+    ok($json, 'Can encode email');
+    isnt($json, 'null', 'JSON encoded email properly');
+
     # Fetch email
     $msg = SMTPbin::Model::Message->find('test', sub {
         my $found = shift->recv;
         if (defined $found) {
             pass('Fetch message');
-            is($found->{body}, 'test', 'Fetched body');
-            is($found->{id}, 'test', 'Fetched id');
-            is($found->{bin}, 'test', 'Fetched bin');
+            is($found->body, 'test', 'Fetched body');
+            is($found->id, 'test', 'Fetched id');
+            is($found->bin, 'test', 'Fetched bin');
         }
     });
 
     # Save message from email
     my $email = <<EMAIL;
 X-SMTPbin-Id: lksdhglaksdhlgkhasd
+Content-type: text/html
 Subject: test
 
 Test
 EMAIL
 
     $msg = SMTPbin::Model::Message->from_email($email);
+    is($msg->bin, 'lksdhglaksdhlgkhasd', 'Bin name from email');
     my $cv2 = $msg->save;
     $cv2->cb(sub {
         pass('Message from email');

@@ -53,10 +53,13 @@ use Data::Dumper;
     SMTPbin::Model::Bin->connect;
     my $msg = SMTPbin::Model::Message->new(
         id => 'testbin',
-        body => 'test',
-        parts => [],
         bin => 'testbin',
-        headers => []
+        email => SMTPbin::Model::Email->create(
+            body => 'test',
+            header => [
+                'Test' => 'test'
+            ]
+        )
     );
     my $cv1 = $msg->save;
     $cv1->recv;

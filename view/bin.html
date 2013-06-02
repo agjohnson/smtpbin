@@ -5,15 +5,11 @@ Bin Messages:
 {{^messages}}
 <div class='email'>
   <dl class='header'>
-    <div>
-      <dt>X-Protip:</dt>
-      <dd>Add the header X-Smtpbin-Id to collect mail in this bin.</dd>
-    </div>
+    <dt>X-Protip:</dt>
+    <dd>Add the header X-Smtpbin-Id to collect mail in this bin.</dd>
 
-    <div>
-      <dt>X-Smtpbin-Id:</dt>
-      <dd>{{bin}}</dd>
-    </div>
+    <dt>X-Smtpbin-Id:</dt>
+    <dd>{{bin}}</dd>
   </dl>
 </div>
 {{/messages}}
@@ -22,31 +18,23 @@ Bin Messages:
 {{#messages}}
   <li class='email'>
     <dl class='header'>
-      <div>
-        <dt>View</dt>
-        <dd>
-          <a href='/message/{{id}}'>plain</a><span>,</span>
-          <a href='/message/{{id}}.html'>html</a>
-          <span>or</span>
-          <a href='/message/{{id}}.txt'>raw</a>
-        </dd>
-      </div>
-      <div>
-        <dt>Subject</dt>
-        <dd>{{subject}}</dd>
-      </div>
-      {{#date}}
-      <div>
-        <dt>Date</dt>
-        <dd>{{.}}</dd>
-      </div>
-      {{/date}}
-      {{#from}}
-      <div>
-        <dt>From</dt>
-        <dd>{{.}}</dd>
-      </div>
-      {{/from}}
+      <dt>View</dt>
+      <dd>
+        <a href='/message/{{id}}'>plain</a><span>,</span>
+        <a href='/message/{{id}}.html'>html</a>
+        <span>or</span>
+        <a href='/message/{{id}}.txt'>raw</a>
+      </dd>
+      <dt>Subject</dt>
+      <dd>{{subject}}</dd>
+  {{#date}}
+      <dt>Date</dt>
+      <dd>{{date}}</dd>
+  {{/date}}
+  {{#from}}
+      <dt>From</dt>
+      <dd>{{from}}</dd>
+  {{/from}}
     </dl>
   </li>
 {{/messages}}

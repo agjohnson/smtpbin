@@ -31,8 +31,8 @@ get '^/index$' => sub {
     };
 };
 
-get '^/message/(\w+)$' => sub {
-    my ($req, $id) = @_;
+get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
+    my ($req, $id, $type) = @_;
     return sub {
         my $respond = shift;
         logger(debug => sprintf('Searching for message: %s', $id));
@@ -40,10 +40,30 @@ get '^/message/(\w+)$' => sub {
             my $msg = shift->recv;
             undef $cv;
             if (defined $msg) {
-                return $respond->(render template 'message.html', {
-                    body => 'BODY',
-                    headers => $msg->headers,
-                });
+                if ($type eq '.html') {
+                    my $res = Plack::Response->new(200);
+                    $res->content_type('text/html');
+                    $res->body($msg->body);
+                    return $respond->(render $res);
+                }
+                elsif ($type eq '.txt') {
+                    my $res = Plack::Response->new(200);
+                    $res->content_type('text/plain');
+                    $res->body($msg->body);
+                    return $respond->(render $res);
+                }
+                elsif ($type eq '.json') {
+                    my $res = Plack::Response->new(200);
+                    $res->content_type('application/json');
+                    $res->body($msg->email->TO_JSON);
+                    return $respond->(render $res);
+                }
+                elsif (defined $msg) {
+                    return $respond->(render template 'message.html', {
+                        body => $msg->body,
+                        headers => $msg->headers,
+                    });
+                }
             }
             else {
                 return $respond->(abort(404));

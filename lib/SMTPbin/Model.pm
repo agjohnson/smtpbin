@@ -40,8 +40,12 @@ sub db_key {
 sub json_attr {
     my ($self, $attr, $value) = @_;
     if (defined $value) {
-        return $self->{$attr} = JSON->new
-          ->allow_nonref->decode($value);
+        my $json = JSON->new
+          ->allow_nonref
+          ->decode($value);
+        $self->{$attr} = $json
+          if (ref $self eq 'HASH');
+        return $json;
     }
     return JSON->new
       ->allow_nonref->allow_blessed->convert_blessed

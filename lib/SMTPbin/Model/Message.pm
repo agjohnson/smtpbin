@@ -1,13 +1,16 @@
 package SMTPbin::Model::Message;
 
+use strict;
+use warnings;
+use 5.010;
+
 use Mouse;
 use AnyEvent;
 use Data::UUID;
 
 extends 'SMTPbin::Model';
 use SMTPbin::Model::Bin;
-
-use Email::MIME;
+use SMTPbin::Model::Email;
 
 
 # Attributes
@@ -20,58 +23,25 @@ has 'bin' => (
     is => 'rw'
 );
 
-has 'headers' => (
-    is => 'rw'
-);
-
-has 'parts' => (
-    is => 'rw'
-);
-
-has 'body' => (
-    is => 'rw'
-);
-
-has 'meta' => (
-    is => 'rw'
+has 'email' => (
+    is => 'rw',
+    required => 1,
+    handles => {
+        header => 'header',
+        body => 'body'
+    }
 );
 
 # Class methods for creating message objects
 sub from_email {
     my $class = shift;
     my $raw = shift;
-    my $email = Email::MIME->new($raw);
+
+    my $email = SMTPbin::Model::Email->new($raw);
 
     if (my $bin_id = $email->header('X-SMTPbin-Id')) {
-        # MIME then Single Part
-        my @parts;
-        if ($email->parts) {
-            foreach my $part ($email->parts) {
-                # TODO handle nested parts here?
-                next if ($part->subparts);
-                push(@parts, {
-                    headers => $class->_headers_from_pairs(
-                        $part->header_pairs
-                    ),
-                    body => $part->body
-                })
-            }
-        }
-        else {
-            push(@parts, {
-                headers => $class->_headers_from_pairs(
-                    $email->header_pairs
-                ),
-                body => $email->body
-            });
-        }
-
         return $class->new(
-            body => $email->body,
-            parts => [@parts],
-            headers => $class->_headers_from_pairs(
-                $email->header_pairs
-            ),
+            email => $email,
             bin => $bin_id
         );
     }
@@ -79,6 +49,7 @@ sub from_email {
 
 sub find {
     my ($class, $id, $cb) = @_;
+    # TODO mouse introspect here, get fields
     my $rcv; $rcv = $class->db->hgetall($class->db_key($id), sub {
         my $ret = shift;
         undef $rcv;
@@ -87,9 +58,12 @@ sub find {
         if (@{$ret}) {
             my %args = @{$ret};
             my $msg = $class->new(
-                id => $id
+                id => $id,
+                bin => $class->json_attr('bin', $args{bin}),
+                email => SMTPbin::Model::Email->new(
+                    $class->json_attr('email', $args{email})
+                )
             );
-            $msg->json_attr($_, $args{$_}) for keys %args;
             $cv->send($msg);
         }
         else {
@@ -101,17 +75,9 @@ sub find {
 
 sub get_payload {
     my $self = shift;
+    # TODO check if is multipart here, get matching content type
     my $content_type = shift // 'text/plain';
-
-    my $payload = $self->body;
-    for my $part (@{$self->parts}) {
-        for my $header (@{$part->{headers}}) {
-            if (lc($header->{header}) eq 'content-type' and
-                    $header->{value} eq $content_type) {
-                $payload = $part->{body}
-            }
-        }
-    }
+    return $self->parts->{$content_type};
 }
 
 sub save {
@@ -121,8 +87,8 @@ sub save {
     # Add message
     $cv->begin;
     $self->db->multi;
-    $self->db->hset($self->db_key, $_, $self->json_attr($_))
-      for qw/bin body headers parts meta/;
+    $self->db->hset($self->db_key, 'bin', $self->json_attr('bin'));
+    $self->db->hset($self->db_key, 'email', $self->json_attr('email'));
     $self->db->expire($self->db_key, 600);
     $self->db->exec(sub { $cv->end });
 
@@ -153,9 +119,26 @@ sub db_key {
     return sprintf('message:%s', $id);
 }
 
+# Helper accessors
+sub subject {
+    my $self = shift;
+    return $self->email->header('Subject');
+}
+
+sub date {
+    my $self = shift;
+    return $self->email->header('Date');
+}
+
+sub from {
+    my $self = shift;
+    return $self->email->header('From');
+}
+
 # Helpers
-sub _headers_from_pairs {
-    my ($self, @pairs) = @_;
+sub headers {
+    my $self = shift;
+    my @pairs = $self->email->header_pairs;
     my @headers;
     while (@pairs) {
         my ($k, $v) = splice(@pairs, 0, 2);

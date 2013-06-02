@@ -17,13 +17,15 @@ sub mail {
     my $class = shift;
 
     # TODO make this all configurable
-    my $smtpd = AnyEvent::SMTP::Server(
+    my $smtpd = AnyEvent::SMTP::Server->new(
         host => undef,
         port => 32001
     );
     $smtpd->reg_cb(
         mail => \&recv_message
     );
+    $smtpd->start;
+    print $smtpd;
 
     # TODO replace the polikcy server start mehtod to not block on recv
     my $app = AnyEvent::Postfix::Policy->new();

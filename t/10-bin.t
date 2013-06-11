@@ -8,7 +8,6 @@ plan tests => 2;
 
 use SMTPbin::Model::Message;
 use SMTPbin::Model::Bin;
-use Data::Dumper;
 
 # TODO Mock redis here
 {
@@ -55,7 +54,11 @@ use Data::Dumper;
         id => 'testbin',
         bin => 'testbin',
         email => SMTPbin::Model::Email->create(
-            body => 'test',
+            attributes => {
+                encoding => '8bit',
+                charset => 'utf8'
+            },
+            body_str => 'test',
             header => [
                 'Test' => 'test'
             ]
@@ -73,4 +76,3 @@ use Data::Dumper;
         }
     });
 }
-

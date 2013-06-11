@@ -4,7 +4,7 @@ use warnings;
 
 use Test::MockModule;
 use Test::More;
-plan tests => 13;
+plan tests => 9;
 
 use SMTPbin::Model::Message;
 use SMTPbin::Model::Email;
@@ -101,15 +101,4 @@ EMAIL
         pass('Message from email');
     });
     $cv2->recv;
-}
-
-# _header_from_pairs
-my @pairs = qw/a b c d e f g h/;
-my %matches = @pairs;
-my $headers = SMTPbin::Model::Message->_headers_from_pairs(@pairs);
-foreach my $header (@{$headers}) {
-    my $k = $header->{header};
-    my $v = $header->{value};
-    my $match = $matches{$k};
-    is($match, $v, "Testing header from pairs");
 }

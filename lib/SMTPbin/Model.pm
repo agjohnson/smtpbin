@@ -10,7 +10,10 @@ use AnyEvent::Redis;
 use JSON qw//;
 
 use SMTPbin::Backend qw/logger/;
-
+use Exporter 'import';
+our @EXPORT = qw/
+    db json_attr connect
+/;
 
 our $DB;
 

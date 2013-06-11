@@ -8,7 +8,7 @@ use Mouse;
 use AnyEvent;
 use Data::UUID;
 
-extends 'SMTPbin::Model';
+use SMTPbin::Model;
 use SMTPbin::Model::Bin;
 use SMTPbin::Model::Email;
 
@@ -49,7 +49,6 @@ sub from_email {
 
 sub find {
     my ($class, $id, $cb) = @_;
-    # TODO mouse introspect here, get fields
     my $rcv; $rcv = $class->db->hgetall($class->db_key($id), sub {
         my $ret = shift;
         undef $rcv;
@@ -60,7 +59,7 @@ sub find {
             my $msg = $class->new(
                 id => $id,
                 bin => $class->json_attr('bin', $args{bin}),
-                email => SMTPbin::Model::Email->new(
+                email => SMTPbin::Model::Email->from_json(
                     $class->json_attr('email', $args{email})
                 )
             );

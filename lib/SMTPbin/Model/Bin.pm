@@ -23,7 +23,7 @@ has 'messages' => (
 # Class methods for instanciation
 sub random {
     my $class = shift;
-    $class->new($class, id => Data::UUID->new->create_str);
+    $class->new(id => lc(Data::UUID->new->create_str));
 }
 
 sub find {

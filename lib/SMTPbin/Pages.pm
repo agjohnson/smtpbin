@@ -72,7 +72,18 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
     }
 };
 
-get '^/bin/(\w+)$' => sub {
+get '^/bin/random$' => sub {
+    my $req = shift;
+    my $bin = SMTPbin::Model::Bin->random;
+    return sub {
+        my $respond = shift;
+        my $ret = Plack::Response->new();
+        $ret->redirect($bin->url, 302);
+        return $respond->(render $ret);
+    };
+};
+
+get '^/bin/([\w\-\_]+)$' => sub {
     my ($req, $id) = @_;
     return sub {
         my $respond = shift;
@@ -83,11 +94,15 @@ get '^/bin/(\w+)$' => sub {
             if (defined $bin) {
                 return $respond->(render template 'bin.html', {
                     id => $id,
-                    messages => $bin->messages,
+                    messages => (length $bin->messages) ?
+                        $bin->messages : undef,
                 });
             }
             else {
-                return $respond->(abort(404));
+                return $respond->(render template 'bin.html', {
+                    id => $id,
+                    messages => undef
+                });
             }
         });
     }

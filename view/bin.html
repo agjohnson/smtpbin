@@ -9,7 +9,7 @@ Bin Messages:
     <dd>Add the header X-Smtpbin-Id to collect mail in this bin.</dd>
 
     <dt>X-Smtpbin-Id:</dt>
-    <dd>{{bin}}</dd>
+    <dd>{{id}}</dd>
   </dl>
 </div>
 {{/messages}}
@@ -18,21 +18,21 @@ Bin Messages:
 {{#messages}}
   <li class='email'>
     <dl class='header'>
-      <dt>View</dt>
+      <dt>View:</dt>
       <dd>
         <a href='/message/{{id}}'>plain</a><span>,</span>
         <a href='/message/{{id}}.html'>html</a>
         <span>or</span>
         <a href='/message/{{id}}.txt'>raw</a>
       </dd>
-      <dt>Subject</dt>
+      <dt>Subject:</dt>
       <dd>{{subject}}</dd>
   {{#date}}
-      <dt>Date</dt>
+      <dt>Date:</dt>
       <dd>{{date}}</dd>
   {{/date}}
   {{#from}}
-      <dt>From</dt>
+      <dt>From:</dt>
       <dd>{{from}}</dd>
   {{/from}}
     </dl>

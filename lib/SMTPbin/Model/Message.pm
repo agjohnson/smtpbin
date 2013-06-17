@@ -11,6 +11,7 @@ use Data::UUID;
 use SMTPbin::Model;
 use SMTPbin::Model::Bin;
 use SMTPbin::Model::Email;
+use SMTPbin::Util qw/jsonify/;
 
 
 # Attributes
@@ -147,6 +148,20 @@ sub headers {
         });
     }
     return \@headers;
+}
+
+sub TO_JSON {
+    my $self = shift;
+    return {
+        id => $self->id,
+        bin => $self->bin,
+        recipient => (defined $self->email) ?
+          $self->email->header('To') : undef,
+        sender => (defined $self->email) ?
+          $self->email->header('From') : undef,
+        subject => (defined $self->email) ?
+          $self->email->header('Subject') : undef,
+    };
 }
 
 1;

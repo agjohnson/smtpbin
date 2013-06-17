@@ -11,6 +11,7 @@ use Plack::Response;
 use SMTPbin::Backend;
 use SMTPbin::Model::Message;
 use SMTPbin::Model::Bin;
+use SMTPbin::Util qw/jsonify/;
 
 
 get '^[/]*$' => sub {
@@ -47,22 +48,22 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
                     return $respond->(render $res);
                 }
                 elsif ($type eq '.txt') {
-                    my $res = Plack::Response->new(200);
-                    $res->content_type('text/plain');
-                    $res->body($msg->body);
-                    return $respond->(render $res);
-                }
-                elsif ($type eq '.json') {
-                    my $res = Plack::Response->new(200);
-                    $res->content_type('application/json');
-                    $res->body($msg->email->TO_JSON);
-                    return $respond->(render $res);
-                }
-                elsif (defined $msg) {
                     return $respond->(render template 'message.html', {
                         body => $msg->body,
                         headers => $msg->headers,
                     });
+                }
+                elsif ($type eq '.json') {
+                    my $res = Plack::Response->new(200);
+                    $res->content_type('application/json');
+                    $res->body(jsonify($msg->email));
+                    return $respond->(render $res);
+                }
+                elsif (defined $msg) {
+                    my $res = Plack::Response->new(200);
+                    $res->content_type('text/plain');
+                    $res->body($msg->email->as_string);
+                    return $respond->(render $res);
                 }
             }
             else {
@@ -83,25 +84,25 @@ get '^/bin/random$' => sub {
     };
 };
 
-get '^/bin/([\w\-\_]+)$' => sub {
-    my ($req, $id) = @_;
+get '^/bin/([\w\-\_]+)($|.json$)' => sub {
+    my ($req, $id, $type) = @_;
     return sub {
         my $respond = shift;
         logger(debug => sprintf('Searching for bin: %s', $id));
         my $cv; $cv = SMTPbin::Model::Bin->find($id, sub {
             my $bin = shift->recv;
             undef $cv;
-            if (defined $bin) {
-                return $respond->(render template 'bin.html', {
-                    id => $id,
-                    messages => (length $bin->messages) ?
-                        $bin->messages : undef,
-                });
+            if (defined $type and $type eq '.json') {
+                my $res = Plack::Response->new(200);
+                $res->content_type('application/json');
+                $res->body(jsonify($bin));
+                return $respond->(render $res);
             }
             else {
                 return $respond->(render template 'bin.html', {
                     id => $id,
-                    messages => undef
+                    messages => (length $bin->messages) ?
+                        $bin->messages : undef,
                 });
             }
         });

@@ -7,7 +7,7 @@ use Data::UUID;
 extends 'SMTPbin::Model';
 use SMTPbin::Model::Message;
 use SMTPbin::Backend qw/logger/;
-
+use SMTPbin::Util qw/jsonify/;
 
 # Attributes
 has 'id' => (
@@ -28,14 +28,14 @@ sub random {
 
 sub find {
     my ($class, $id, $cb) = @_;
+    my $bin = $class->new(id => $id);
     my $rcv; $rcv = $class->db->smembers($class->db_key($id), sub {
         my $ret = shift;
         undef $rcv;
         my $cv = AnyEvent->condvar;
         $cv->cb($cb);
         if (@{$ret}) {
-            my $bin = $class->new(id => $id);
-            logger(debug => "Found bin on lookup: ${id}");
+            logger(debug => "Found bin with messages on lookup: ${id}");
             for my $msg_id (@{$ret}) {
                 $cv->begin(sub { $cv->send($bin) });
                 SMTPbin::Model::Message->find($msg_id, sub {
@@ -47,8 +47,8 @@ sub find {
             }
         }
         else {
-            logger(debug => "Missing bin on lookup: ${id}");
-            $cv->send(undef)
+            logger(debug => "Found empty bin on lookup: ${id}");
+            $cv->send($bin)
         }
     });
     return $rcv;
@@ -77,6 +77,16 @@ sub db_key {
     my $self = shift;
     my $id = shift // $self->id // 'foobar';
     return sprintf('bin:%s', $id);
+}
+
+# JSON
+sub TO_JSON {
+    my $self = shift;
+    return {
+        id => $self->id,
+        messages => (defined $self->messages) ?
+          map { $_ } @{$self->messages} : undef
+    };
 }
 
 1;

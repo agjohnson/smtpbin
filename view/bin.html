@@ -1,41 +1,49 @@
 {{>header.html}}
 
-Bin Messages:
+<h2>Bin Messages</h2>
 
 {{^messages}}
 <div class='email'>
-  <dl class='header'>
-    <dt>X-Protip:</dt>
-    <dd>Add the header X-Smtpbin-Id to collect mail in this bin.</dd>
+  <div class='header'>
+    <span class='key'>X-Protip:</span>
+    <span class='value'>Add the header X-Smtpbin-Id to collect mail in this bin.</span>
+  </div>
 
-    <dt>X-Smtpbin-Id:</dt>
-    <dd>{{id}}</dd>
-  </dl>
+  <div class='header'>
+    <span class='key'>X-Smtpbin-Id:</span>
+    <span class='value'>{{id}}</span>
+  </div>
 </div>
 {{/messages}}
 
 <ul class='bin'>
 {{#messages}}
   <li class='email'>
-    <dl class='header'>
-      <dt>View:</dt>
-      <dd>
+    <div class='header'>
+      <span class='key'>View:</span>
+      <span class='value'>
         <a href='/message/{{id}}.txt'>plain</a><span>,</span>
         <a href='/message/{{id}}.html'>html</a>
         <span>or</span>
         <a href='/message/{{id}}'>raw</a>
-      </dd>
-      <dt>Subject:</dt>
-      <dd>{{subject}}</dd>
+      </span>
+    </div>
+    <div class='header'>
+      <span class='key'>Subject:</span>
+      <span class='value'>{{subject}}</span>
+    </div>
   {{#date}}
-      <dt>Date:</dt>
-      <dd>{{date}}</dd>
+    <div class='header'>
+      <span class='key'>Date:</span>
+      <span class='value'>{{date}}</span>
+    </div>
   {{/date}}
   {{#from}}
-      <dt>From:</dt>
-      <dd>{{from}}</dd>
+    <div class='header'>
+      <span class='key'>From:</span>
+      <span class='value'>{{from}}</span>
+    </div>
   {{/from}}
-    </dl>
   </li>
 {{/messages}}
 </ul>

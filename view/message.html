@@ -3,14 +3,16 @@
 Message:
 
 <div class='email'>
-  <dl class='header' style='color: #998'>
   {{#headers}}
-    <dt>{{header}}:</dt>
-    <dd>{{value}}</dd>
+  <div class='header' style='color: #998'>
+    <span class='key'>{{header}}:</span>
+    <span class='value'>{{value}}</span>
+  </div>
   {{/headers}}
-  </dl>
 
-  <p>{{body}}</p>
+  <p>
+    {{body}}
+  </p>
 </div>
 
 {{>footer.html}}

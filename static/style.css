@@ -100,27 +100,25 @@ h1 {
 }
 
 /* Headers */
-.email dl.header {
+.email div.header {
+    margin: .2em .2em;
     overflow: hidden;
 }
 
-.email dl.header > dt {
-    display: inline;
-    float: left;
-    clear: left;
-    width: auto;
-    padding-right: .5em;
+.email div.header > span.key {
+    padding-right: .20em;
     font-weight: bold;
 }
 
-.email dl.header > dd {
-    display: inline;
-    float: left;
-    width: auto;
+.email div.header > span.value {
     margin: 0em;
 }
 
 /* General formats */
+.email p {
+    white-space: pre-line;
+}
+
 .email b {
     font-weight: bold;
 }

@@ -25,7 +25,6 @@ sub mail {
         mail => \&recv_message
     );
     $smtpd->start;
-    print $smtpd;
 
     # TODO replace the polikcy server start mehtod to not block on recv
     my $app = AnyEvent::Postfix::Policy->new();

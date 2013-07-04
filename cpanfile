@@ -1,0 +1,16 @@
+requires 'perl', 5.010;
+requires 'Twiggy', 0;
+requires 'Plack', 0;
+requires 'Plack::Middleware::Static', 0;
+requires 'Plack::Middleware::Debug', 0;
+requires 'Template', 0;
+requires 'JSON', 0;
+requires 'Text::Caml', 0;
+requires 'Data::UUID', 0;
+requires 'Mouse', 0;
+requires 'AnyEvent::Redis', 0;
+requires 'AnyEvent', 0;
+requires 'AnyEvent::SMTP', 0;
+requires 'AnyEvent::Log', 0;
+requires 'Email::MIME', 0;
+requires 'App::local::lib::helper', 0;

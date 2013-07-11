@@ -11,15 +11,15 @@ use Email::MIME;
 
 use SMTPbin::Model::Message;
 use SMTPbin::Model::Bin;
-
+use SMTPbin::Util qw/config/;
 
 sub mail {
     my $class = shift;
 
     # TODO make this all configurable
     my $smtpd = AnyEvent::SMTP::Server->new(
-        host => undef,
-        port => 32001
+        host => config->{smtpd}->{host},
+        port => config->{smtpd}->{port}
     );
     $smtpd->reg_cb(
         mail => \&recv_message
@@ -29,19 +29,50 @@ sub mail {
     # TODO replace the polikcy server start mehtod to not block on recv
     my $app = AnyEvent::Postfix::Policy->new();
     $app->rule(
-        recipient => qr/\@smtpbin.org$/,
+        recipient => qr/^(?:\w+|\w+\+(?:2\d\d|okay|ok))\@smtpbin.org$/,
         cb => sub { AnyEvent::Postfix::Policy::Response->new(
-            action => 'filter',
-            message => 'smtp:127.0.0.1:32001'
+            action => 'ok',
+            message => 'Accepted'
         )}
     );
-    $app->run(undef, 32002);
+    $app->rule(
+        recipient => qr/^\w+\+(?:450|defer)\@smtpbin.org$/,
+        cb => sub { AnyEvent::Postfix::Policy::Response->new(
+            action => '450',
+            message => 'Mailbox unavailable'
+        )}
+    );
+    $app->rule(
+        recipient => qr/^\w+\+451\@smtpbin.org$/,
+        cb => sub { AnyEvent::Postfix::Policy::Response->new(
+            action => '451',
+            message => 'Temporary error'
+        )}
+    );
+    $app->rule(
+        recipient => qr/^\w+\+452\@smtpbin.org$/,
+        cb => sub { AnyEvent::Postfix::Policy::Response->new(
+            action => '452',
+            message => 'Insufficient storage'
+        )}
+    );
+    $app->rule(
+        recipient => qr/^\w+\+(?:5\d\d|reject)\@smtpbin.org$/,
+        cb => sub { AnyEvent::Postfix::Policy::Response->new(
+            action => '500',
+            message => 'Mailbox unavailable'
+        )}
+    );
+    $app->run(
+        config->{policy}->{host},
+        config->{policy}->{port}
+    );
 
     # TODO return a guard condvar?
 }
 
 sub recv_message {
-    my $mail = shift;
+    my ($conn, $mail) = @_;
     my $msg = SMTPbin::Model::Message->from_email($mail->{data});
     $msg->save();
 }

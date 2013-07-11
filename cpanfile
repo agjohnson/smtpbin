@@ -1,4 +1,6 @@
 requires 'perl', 5.010;
+requires 'App::cpanminus', 0;
+requires 'App::local::lib::helper', 0;
 requires 'Twiggy', 0;
 requires 'Plack', 0;
 requires 'Plack::Middleware::Static', 0;
@@ -12,5 +14,6 @@ requires 'AnyEvent::Redis', 0;
 requires 'AnyEvent', 0;
 requires 'AnyEvent::SMTP', 0;
 requires 'AnyEvent::Log', 0;
+requires 'AnyEvent::Postfix::Policy', 0;
 requires 'Email::MIME', 0;
-requires 'App::local::lib::helper', 0;
+requires 'Config::Any', 0;

@@ -17,3 +17,8 @@ pm_to_blib
 SMTPbin-*
 SMTPbin-*.tar.gz
 *.swp
+.carton/*
+local/*
+*.pyc
+*log
+config.json

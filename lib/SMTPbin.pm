@@ -26,6 +26,7 @@ SMTPbin.org <3 email
 use SMTPbin::Backend;
 use SMTPbin::Pages;
 use SMTPbin::Model;
+use SMTPbin::Util qw/config/;
 
 use Plack::Builder;
 use Plack::Middleware::Static;
@@ -39,7 +40,7 @@ sub app {
             root => 'static/'
         );
         enable('Debug')
-          if ($ENV{'DEBUG'});
+          if (config->{debug});
         mount '/' => \&SMTPbin::Backend::app;
     }
 }

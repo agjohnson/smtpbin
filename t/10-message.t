@@ -19,6 +19,10 @@ use Data::Dumper;
             DATA => {}
         }, shift;
     });
+    $mocker->mock('connect', sub {
+        my ($self, $cb) = @_;
+        $cb->() if ($cb);
+    });
     $mocker->mock($_, sub {}) for qw/expire multi/;
     $mocker->mock('exec', sub {
         my ($self, $cb) = @_;
@@ -29,6 +33,15 @@ use Data::Dumper;
         $self->{DATA}->{$key} = {}
           if (!defined $self->{DATA}->{$key});
         $self->{DATA}->{$key}->{$hkey} = $value;
+        $cb->() if ($cb);
+    });
+    $mocker->mock('hincrby', sub {
+        my ($self, $key, $hkey, $value, $cb) = @_;
+        $self->{DATA}->{$key} = {}
+          if (!defined $self->{DATA}->{$key});
+        $self->{DATA}->{$key}->{$hkey} = 0
+          if (!defined $self->{DATA}->{$key}->{$hkey});
+        $self->{DATA}->{$key}->{$hkey} += $value;
         $cb->() if ($cb);
     });
     $mocker->mock($_, sub {

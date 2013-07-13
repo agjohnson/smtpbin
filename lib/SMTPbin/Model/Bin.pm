@@ -6,6 +6,7 @@ use Data::UUID;
 
 extends 'SMTPbin::Model';
 use SMTPbin::Model::Message;
+use SMTPbin::Model::Stats;
 use SMTPbin::Backend qw/logger/;
 use SMTPbin::Util qw/jsonify/;
 
@@ -58,12 +59,20 @@ sub add {
     my ($self, $msg) = @_;
     my $cv = AnyEvent->condvar;
 
+    # Add message to db set
     $cv->begin;
     $self->db->multi;
     $self->db->sadd($self->db_key, $msg->id);
     $self->db->expire($self->db_key, 600);
-    # TODO add stats
     $self->db->exec(sub { $cv->end });
+
+    # Stats
+    my $stats = SMTPbin::Model::Stats->new(
+        id => $self->db_key
+    );
+    $cv->begin;
+    my $cv1 = $stats->add('recv', 1);
+    $cv1->cb(sub { undef $cv1; $cv->end; });
 
     return $cv;
 }

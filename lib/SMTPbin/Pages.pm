@@ -11,6 +11,7 @@ use Plack::Response;
 use SMTPbin::Backend;
 use SMTPbin::Model::Message;
 use SMTPbin::Model::Bin;
+use SMTPbin::Model::Stats;
 use SMTPbin::Util qw/jsonify/;
 
 
@@ -73,6 +74,7 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
     }
 };
 
+# Bin Pages
 get '^/bin/random$' => sub {
     my $req = shift;
     my $bin = SMTPbin::Model::Bin->random;
@@ -105,6 +107,23 @@ get '^/bin/([\w\-\_]+)($|.json$)' => sub {
                         $bin->messages : undef,
                 });
             }
+        });
+    }
+};
+
+get '^/bin/([\w\-\_]+)/stats.json$' => sub {
+    my ($req, $id) = @_;
+    $id = sprintf('bin:%s', $id);
+    return sub {
+        my $respond = shift;
+        logger(debug => sprintf('Searching for stats: %s', $id));
+        my $cv; $cv = SMTPbin::Model::Stats->find($id, sub {
+            my $stats = shift->recv;
+            undef $cv;
+            my $res = Plack::Response->new(200);
+            $res->content_type('application/json');
+            $res->body(jsonify($stats));
+            return $respond->(render $res);
         });
     }
 };

@@ -30,7 +30,7 @@ sub random {
 sub find {
     my ($class, $id, $cb) = @_;
     my $bin = $class->new(id => $id);
-    my $rcv; $rcv = $class->db->smembers($class->db_key($id), sub {
+    my $rcv; $rcv = $class->db->lrange($class->db_key($id), 0, -1, sub {
         my $ret = shift;
         undef $rcv;
         my $cv = AnyEvent->condvar;
@@ -62,7 +62,7 @@ sub add {
     # Add message to db set
     $cv->begin;
     $self->db->multi;
-    $self->db->sadd($self->db_key, $msg->id);
+    $self->db->lpush($self->db_key, $msg->id);
     $self->db->expire($self->db_key, 600);
     $self->db->exec(sub { $cv->end });
 

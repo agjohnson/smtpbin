@@ -9,7 +9,6 @@ plan tests => 2;
 use SMTPbin::Model::Message;
 use SMTPbin::Model::Bin;
 
-# TODO Mock redis here
 {
     my $mocker = Test::MockModule->new('AnyEvent::Redis');
     $mocker->mock('new', sub {
@@ -43,7 +42,8 @@ use SMTPbin::Model::Bin;
         $cb->() if ($cb);
     });
     $mocker->mock($_, sub {
-        my ($self, $key, $cb) = @_;
+        my ($self, $key) = @_;
+        my $cb = pop @_;
         my $data = $self->{DATA}->{$key};
         my @pairs;
         if (ref $data eq 'HASH') {
@@ -53,10 +53,10 @@ use SMTPbin::Model::Bin;
             @pairs = @{$data};
         }
         $cb->(\@pairs) if ($cb);
-    }) for qw/smembers hgetall/;
-    $mocker->mock('sadd', sub {
+    }) for qw/lrange hgetall/;
+    $mocker->mock('lpush', sub {
         my ($self, $key, $value) = @_;
-        push(@{$self->{DATA}->{$key}}, $value);
+        unshift(@{$self->{DATA}->{$key}}, $value);
     });
 
     my $bin;
@@ -81,11 +81,14 @@ use SMTPbin::Model::Bin;
     $cv1->recv;
 
     # Fetch email
+    my $guard = AnyEvent->condvar;
     $msg = SMTPbin::Model::Bin->find('testbin', sub {
         my $found = shift->recv;
         if (defined $found) {
             pass('Fetch bin');
             is($found->{id}, 'testbin', 'Find bin');
+            $guard->send();
         }
     });
+    $guard->recv;
 }

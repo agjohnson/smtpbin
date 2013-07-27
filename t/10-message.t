@@ -45,7 +45,8 @@ use Data::Dumper;
         $cb->() if ($cb);
     });
     $mocker->mock($_, sub {
-        my ($self, $key, $cb) = @_;
+        my ($self, $key) = @_;
+        my $cb = pop @_;
         my $data = $self->{DATA}->{$key};
         my @pairs;
         if (ref $data eq 'HASH') {
@@ -55,8 +56,8 @@ use Data::Dumper;
             @pairs = @{$data};
         }
         $cb->(\@pairs) if ($cb);
-    }) for qw/smembers hgetall/;
-    $mocker->mock('sadd', sub {
+    }) for qw/lrange hgetall/;
+    $mocker->mock('lpush', sub {
         my ($self, $key, $value) = @_;
         push(@{$self->{DATA}->{$key}}, $value);
     });

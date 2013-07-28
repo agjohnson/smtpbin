@@ -22,7 +22,7 @@
     <span class='value'><a href='http://github.com/agjohnson/smtpbin'>http://github.com/agjohnson/smtpbin</a></span>
   </div>
 
-  <h2>Synopsis</h2>
+  <h2>Synopsis<br/>--------</h2>
 
   <p>Use smtpbin for email integration and bounce testing:</p>
 
@@ -32,7 +32,7 @@
     <li>Generate <i>5xx</i> and <i>4xx</i> errors per recipient</li>
   </ul>
 
-  <h2>Usage</h2>
+  <h2>Usage<br/>-----</h2>
 
   <p style='white-space: normal;'>
     Mail bins collect statistics and store incoming messages for viewing in a
@@ -47,7 +47,7 @@
     manually.
   </p>
 
-  <h2>API Enpoints</h2>
+  <h2>Enpoints<br/>--------</h2>
 
   <p style='white-space: normal;'>
     The following endpoints are available for automating integration testing on
@@ -61,7 +61,7 @@
     <li><a href='/message/foobar.json'>/message/:id.json</a> - return message <b>id</b> as JSON</li>
   </ul>
 
-  <h2>Recipients</h2>
+  <h2>Recipients<br/>----------</h2>
 
   <p style='white-space: normal;'>
     Recipients are accepted or rejected based on the recipient extension,
@@ -90,15 +90,15 @@
     <dd>Return mailbox unavailable response</dd>
   </dl>
 
-  <h2>Headers</h2>
+  <h2>Headers<br/>-------</h2>
 
   <p style='white-space: normal;'>
     By specifying headers in the generated email, statistics can be generated
     and the message will be stored for a short period of time for viewing.
   </p>
 
+  <a name='header-id'/>
   <dl class='doc'>
-    <a name='header-id'/>
     <dt><b>X-Smtpbin-Id:</b> &lt;id&gt;</dt>
     <dd>
       Set the mail bin to <b>id</b>, which is an alphanumeric string of any
@@ -108,11 +108,11 @@
     </dd>
   </dl>
 
-  <p>
-    Regards,<br/>
-    Anthony<br/>
-    --<br/>
-    aj@ohess.org<br/>
+  <p><!--
+ -->Regards,
+    Anthony
+    --
+    aj@ohess.org
     <a href='http://ohess.org'>http://ohess.org</a>
   </p>
 

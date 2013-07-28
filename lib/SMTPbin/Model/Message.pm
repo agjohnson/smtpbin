@@ -49,7 +49,13 @@ sub from_email {
 }
 
 sub find {
-    my ($class, $id, $cb) = @_;
+    my $class = shift;
+    my %args = @_;
+
+    # Pull out args
+    my $id = $args{id};
+    my $cb = $args{cb};
+
     my $rcv; $rcv = $class->db->hgetall($class->db_key($id), sub {
         my $ret = shift;
         undef $rcv;

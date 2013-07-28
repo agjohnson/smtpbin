@@ -20,7 +20,13 @@ has 'data' => (
 
 # Class methods for instanciation
 sub find {
-    my ($class, $id, $cb) = @_;
+    my $class = shift;
+    my %args = @_;
+
+    # Pull out args
+    my $id = $args{id};
+    my $cb = $args{cb};
+
     my $stats = $class->new(id => $id);
     my $rcv; $rcv = $class->db->hgetall($class->db_key($id), sub {
         my $ret = shift;

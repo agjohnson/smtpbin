@@ -18,47 +18,52 @@
   </div>
 
   <div class='header'>
-    <span class='key'>X-Mailer:</span>
-    <span class='value'><a href='http://github.com/agjohnson/posthook'>posthook</a></span>
-  </div>
-
-  <div class='header'>
     <span class='key'>X-Source:</span>
     <span class='value'><a href='http://github.com/agjohnson/smtpbin'>http://github.com/agjohnson/smtpbin</a></span>
   </div>
-
-  <p></p>
 
   <h2>Synopsis</h2>
 
   <p>Use smtpbin for email integration and bounce testing:</p>
 
   <ul>
-    <li>Generate <i>5xx</i> and <i>4xx</i> errors per recipient</li>
+    <li>Browsable mailbox for viewing incoming messages</li>
     <li>JSON API for delivery information and statistics</li>
-    <li>Create a mail bin by specifying an <b><a href='#header-id'>X-Smtpbin-Id</a></b> header</li>
+    <li>Generate <i>5xx</i> and <i>4xx</i> errors per recipient</li>
   </ul>
 
-  <p>
-    Mail bins collect statistics and store messages for viewing through manual
-    links:
+  <h2>Usage</h2>
+
+  <p style='white-space: normal;'>
+    Mail bins collect statistics and store incoming messages for viewing in a
+    browser. Mail bins are publicly viewable and stored messages expire after
+    15 minutes. To store an incoming message in a mail bin, specify an
+    <b><a href='#header-id'>X-Smtpbin-Id</a></b> header. Messages that aren't
+    rejected due to recipient rejection will be stored for viewing.
+  </p>
+
+  <p style='white-space: normal;'>
+    Claim a <a href='/bin/random'>random bin</a>, or <a href='/bin/new'>create one</a>
+    manually.
+  </p>
+
+  <h2>API Enpoints</h2>
+
+  <p style='white-space: normal;'>
+    The following endpoints are available for automating integration testing on
+    SMTP services:
   </p>
 
   <ul>
-    <li><a href='/bin/foobar'>/bin/:id</a> - list view for bin <b>id</b></li>
     <li><a href='/bin/foobar.json'>/bin/:id.json</a> - return bin <b>id</b> as JSON</li>
     <li><a href='/bin/foobar/stats.json'>/bin/:id/stats.json</a> - return stats for bin <b>id</b> as JSON</li>
-    <li><a href='/bin/random'>/bin/random</a> - special redirect to a random bin id</li>
-    <li><a href='/bin/random.json'>/bin/random.json</a> - return random bin as JSON</li>
-    <li><a href='/message/foobar'>/message/:id</a> - view message <b>id</b> as plain</li>
-    <li><a href='/message/foobar.html'>/message/:id.html</a> - view message <b>id</b> as html</li>
-    <li><a href='/message/foobar.txt'>/message/:id.txt</a> - view message <b>id</b> as raw</li>
+    <li><a href='/bin/random.json'>/bin/random.json</a> - return random unused bin as JSON</li>
     <li><a href='/message/foobar.json'>/message/:id.json</a> - return message <b>id</b> as JSON</li>
   </ul>
 
   <h2>Recipients</h2>
 
-  <p>
+  <p style='white-space: normal;'>
     Recipients are accepted or rejected based on the recipient extension,
     specified after the local part of the email address. The local part of the
     email is disregarded, only the extension and, if accepted, headers matter.
@@ -87,7 +92,7 @@
 
   <h2>Headers</h2>
 
-  <p>
+  <p style='white-space: normal;'>
     By specifying headers in the generated email, statistics can be generated
     and the message will be stored for a short period of time for viewing.
   </p>

@@ -11,7 +11,6 @@ use SMTPbin::Model::Email;
 use Data::Dumper;
 
 
-# TODO Mock redis here
 {
     my $mocker = Test::MockModule->new('AnyEvent::Redis');
     $mocker->mock('new', sub {
@@ -89,7 +88,7 @@ use Data::Dumper;
     isnt($json, 'null', 'JSON encoded email properly');
 
     # Fetch email
-    $msg = SMTPbin::Model::Message->find('test', sub {
+    $msg = SMTPbin::Model::Message->find(id => 'test', cb => sub {
         my $found = shift->recv;
         if (defined $found) {
             pass('Fetch message');

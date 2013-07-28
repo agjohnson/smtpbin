@@ -82,7 +82,7 @@ use SMTPbin::Model::Bin;
 
     # Fetch email
     my $guard = AnyEvent->condvar;
-    $msg = SMTPbin::Model::Bin->find('testbin', sub {
+    $msg = SMTPbin::Model::Bin->find(id => 'testbin', cb => sub {
         my $found = shift->recv;
         if (defined $found) {
             pass('Fetch bin');

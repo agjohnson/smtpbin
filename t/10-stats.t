@@ -8,7 +8,7 @@ plan tests => 4;
 
 use SMTPbin::Model::Stats;
 
-# TODO Mock redis here
+
 {
     my $mocker = Test::MockModule->new('AnyEvent::Redis');
     $mocker->mock('new', sub {
@@ -69,7 +69,7 @@ use SMTPbin::Model::Stats;
 
     $cv->cb(sub {
         pass('Add event triggered');
-        my $stats = SMTPbin::Model::Stats->find('bin:test', sub {
+        my $stats = SMTPbin::Model::Stats->find(id => 'bin:test', cb => sub {
             my $found = shift->recv;
             pass('Find event triggered');
             ok(defined $found, 'Stats received');

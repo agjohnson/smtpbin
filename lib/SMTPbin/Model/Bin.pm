@@ -28,7 +28,17 @@ sub random {
 }
 
 sub find {
-    my ($class, $id, $cb) = @_;
+    my $class = shift;
+    my %args = @_;
+
+    use Data::Dumper;
+    logger(debug => Dumper(\%args));
+
+    # Pull args out
+    my $id = $args{id};
+    my $search = $args{search} // {};
+    my $cb = $args{cb} // sub { };
+
     my $bin = $class->new(id => $id);
     my $rcv; $rcv = $class->db->lrange($class->db_key($id), 0, -1, sub {
         my $ret = shift;
@@ -39,8 +49,22 @@ sub find {
             logger(debug => "Found bin with messages on lookup: ${id}");
             for my $msg_id (@{$ret}) {
                 $cv->begin(sub { $cv->send($bin) });
-                SMTPbin::Model::Message->find($msg_id, sub {
+                SMTPbin::Model::Message->find(id => $msg_id, cb => sub {
                     my $msg = shift->recv;
+                    $cv->end if (!defined $msg);
+
+                    # Search match
+                    if ($search->{user}) {
+                        my $recipient = $msg->header('To');
+                        my $user = $search->{user};
+                        if ($recipient !~ m/
+                                    ${user}
+                                    (?:\+\w+)?\@smtpbin\.org$
+                                /x) {
+                            return $cv->end;
+                        };
+                    }
+
                     push(@{$bin->{messages}}, $msg)
                       if (defined $msg);
                     $cv->end;

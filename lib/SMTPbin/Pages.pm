@@ -50,7 +50,7 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
                         $res->body($msg->body);
                         return $respond->(render $res);
                     }
-                    elsif ($type eq '.txt') {
+                    elsif (!defined $type or $type eq '') {
                         return $respond->(render template 'message.html', {
                             body => $msg->body,
                             headers => $msg->headers,
@@ -62,7 +62,7 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
                         $res->body(jsonify($msg->email));
                         return $respond->(render $res);
                     }
-                    elsif (defined $msg) {
+                    elsif ($type eq '.txt') {
                         my $res = Plack::Response->new(200);
                         $res->content_type('text/plain');
                         $res->body($msg->email->as_string);

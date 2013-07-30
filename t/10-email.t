@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 15;
+plan tests => 16;
 
 use SMTPbin::Model::Email;
 use Data::Dumper;
@@ -42,6 +42,9 @@ is($part->body, "PLAIN BODY\n\n", 'Part body');
 $part = $msg->part_type('text/html');
 is($part->content_type, 'text/html', 'Part content type');
 is($part->body, "HTML BODY\n\n", 'Part body');
+
+$part = $msg->part_type('text/foobar');
+ok(!defined $part, 'Missing part content type');
 
 my $json = $msg->TO_JSON;
 ok(defined($json->{body}), 'JSON export body');

@@ -79,13 +79,6 @@ sub find {
     return $rcv;
 }
 
-sub get_payload {
-    my $self = shift;
-    # TODO check if is multipart here, get matching content type
-    my $content_type = shift // 'text/plain';
-    return $self->parts->{$content_type};
-}
-
 sub save {
     my $self = shift;
     my $cv = AnyEvent->condvar;

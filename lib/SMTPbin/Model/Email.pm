@@ -6,6 +6,9 @@ use 5.010;
 
 use base 'Email::MIME';
 
+use SMTPbin::Backend qw/logger/;
+
+
 sub TO_JSON {
     my $self = shift;
     return {
@@ -77,13 +80,20 @@ sub _json_parts {
 }
 
 sub part_type {
-    my ($self, $type) = @_;
+    my $self = shift;
+    my $content_type = shift // 'text/plain';
+    my $ret;
 
-    for my $part ($self->parts) {
-        if ($part->content_type eq $type) {
-            return $part;
+    $self->walk_parts(sub {
+        my $part = shift;
+        return if $part->subparts;
+
+        if ($part->content_type =~ m/^${content_type}(?:;|$)/) {
+            $ret = $part;
         }
-    }
+    });
+
+    return $ret;
 }
 
 1;

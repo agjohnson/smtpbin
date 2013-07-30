@@ -44,17 +44,22 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
                 my $msg = shift->recv;
                 undef $cv;
                 if (defined $msg) {
-                    if ($type eq '.html') {
-                        my $res = Plack::Response->new(200);
-                        $res->content_type('text/html');
-                        $res->body($msg->body);
-                        return $respond->(render $res);
-                    }
-                    elsif (!defined $type or $type eq '') {
+                    if (!defined $type or $type eq '') {
+                        my $part = $msg->email->part_type('text/plain') //
+                            $msg->email;
                         return $respond->(render template 'message.html', {
-                            body => $msg->body,
+                            body => $part->body,
                             headers => $msg->headers,
                         });
+                    }
+                    elsif ($type eq '.html') {
+                        my $part = $msg->email->part_type('text/html') //
+                            $msg->email->part_type('text/plain') //
+                            $msg->email;
+                        my $res = Plack::Response->new(200);
+                        $res->content_type('text/html');
+                        $res->body($part->body);
+                        return $respond->(render $res);
                     }
                     elsif ($type eq '.json') {
                         my $res = Plack::Response->new(200);

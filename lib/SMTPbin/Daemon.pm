@@ -74,7 +74,7 @@ sub mail {
 sub recv_message {
     my ($conn, $mail) = @_;
     my $msg = SMTPbin::Model::Message->from_email($mail->{data});
-    $msg->save();
+    $msg->save() if $msg;
 }
 
 1;

@@ -33,6 +33,10 @@ has 'email' => (
     }
 );
 
+has 'policy' => (
+    is => 'rw'
+);
+
 # Class methods for creating message objects
 sub from_email {
     my $class = shift;
@@ -41,9 +45,11 @@ sub from_email {
     my $email = SMTPbin::Model::Email->new($raw);
 
     if (my $bin_id = $email->header('X-SMTPbin-Id')) {
+        my $policy = $email->header('X-SMTPbin-Policy');
         return $class->new(
             email => $email,
-            bin => $bin_id
+            bin => $bin_id,
+            policy => (defined $policy) ? $policy : 'save'
         );
     }
 }
@@ -84,20 +90,28 @@ sub save {
     my $cv = AnyEvent->condvar;
 
     # Add message
-    $cv->begin;
-    $self->db->multi;
-    $self->db->hset($self->db_key, 'bin', $self->json_attr('bin'));
-    $self->db->hset($self->db_key, 'email', $self->json_attr('email'));
-    $self->db->expire($self->db_key, 600);
-    $self->db->exec(sub { $cv->end });
+    if ($self->policy eq 'write') {
+        $cv->begin;
+        $self->db->multi;
+        $self->db->hset($self->db_key, 'bin', $self->json_attr('bin'));
+        $self->db->hset($self->db_key, 'email', $self->json_attr('email'));
+        $self->db->expire($self->db_key, 600);
+        $self->db->exec(sub { $cv->end });
+    }
 
-    # Add to Bin
+    # Add to bin
     $cv->begin;
     my $bin = SMTPbin::Model::Bin->new(
         id => $self->bin
     );
-    my $cv_bin = $bin->add($self);
-    $cv_bin->cb(sub { $cv->end });
+    my $cv1;
+    if ($self->policy eq 'write') {
+        $cv1 = $bin->add($self);
+    }
+    else {
+        $cv1 = $bin->count($self);
+    }
+    $cv1->cb(sub { $cv->end });
 
     return $cv;
 }
@@ -121,17 +135,26 @@ sub db_key {
 # Helper accessors
 sub subject {
     my $self = shift;
-    return $self->email->header('Subject');
+    return $self->email->header('Subject')
+      if (defined $self->email);
 }
 
 sub date {
     my $self = shift;
-    return $self->email->header('Date');
+    return $self->email->header('Date')
+      if (defined $self->email);
 }
 
 sub from {
     my $self = shift;
-    return $self->email->header('From');
+    return $self->email->header('From')
+      if (defined $self->email);
+}
+
+sub recipient {
+    my $self = shift;
+    return $self->email->header('To')
+      if (defined $self->email);
 }
 
 # Helpers
@@ -154,12 +177,9 @@ sub TO_JSON {
     return {
         id => $self->id,
         bin => $self->bin,
-        recipient => (defined $self->email) ?
-          $self->email->header('To') : undef,
-        sender => (defined $self->email) ?
-          $self->email->header('From') : undef,
-        subject => (defined $self->email) ?
-          $self->email->header('Subject') : undef,
+        recipient => $self->recipient,
+        sender => $self->from,
+        subject => $self->subject
     };
 }
 

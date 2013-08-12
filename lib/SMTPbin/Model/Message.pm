@@ -34,7 +34,8 @@ has 'email' => (
 );
 
 has 'policy' => (
-    is => 'rw'
+    is => 'rw',
+    default => sub { 'write' }
 );
 
 # Class methods for creating message objects
@@ -49,7 +50,7 @@ sub from_email {
         return $class->new(
             email => $email,
             bin => $bin_id,
-            policy => (defined $policy) ? $policy : 'save'
+            policy => $policy // 'write'
         );
     }
 }

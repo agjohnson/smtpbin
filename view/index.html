@@ -99,12 +99,21 @@
 
   <a name='header-id'/>
   <dl class='doc'>
-    <dt><b>X-Smtpbin-Id:</b> &lt;id&gt;</dt>
+    <dt><b>X-SMTPbin-Id:</b> &lt;id&gt;</dt>
     <dd>
       Set the mail bin to <b>id</b>, which is an alphanumeric string of any
       reasonable length. This will store the message temporarily under the bin
       <b>id</b> list, which generates a list of messages viewable as plain,
       html, or raw text.
+    </dd>
+
+    <dt><b>X-SMTPbin-Policy:</b> &lt;policy&gt;</dt>
+    <dd>
+      Set the mail bin policy to <b>policy</b>, which is one of the following:
+      <ul>
+        <li><b>write</b> - save message to bin, for full integration tests</li>
+        <li><b>count</b> - update stats for bin, don't save</li>
+      </ul>
     </dd>
   </dl>
 

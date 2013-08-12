@@ -90,15 +90,19 @@ sub add {
     $self->db->expire($self->db_key, 600);
     $self->db->exec(sub { $cv->end });
 
-    # Stats
+    $cv->begin;
+    my $cv1 = $self->count;
+    $cv1->cb(sub { $cv->end });
+
+    return $cv;
+}
+
+sub count {
+    my ($self) = @_;
     my $stats = SMTPbin::Model::Stats->new(
         id => $self->db_key
     );
-    $cv->begin;
-    my $cv1 = $stats->add('recv', 1);
-    $cv1->cb(sub { undef $cv1; $cv->end; });
-
-    return $cv;
+    return $stats->add('recv', 1);
 }
 
 # Attributes

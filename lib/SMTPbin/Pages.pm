@@ -33,10 +33,14 @@ get '^/index$' => sub {
     };
 };
 
-get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
-    my ($req, $id, $type) = @_;
+# Message
+get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$|/delete$)' => sub {
+    my ($req, $id, $view) = @_;
+
     return sub {
         my $respond = shift;
+
+        # Set up sub-views
         logger(debug => sprintf('Searching for message: %s', $id));
         my $cv; $cv = SMTPbin::Model::Message->find(
             id => $id,
@@ -44,34 +48,20 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
                 my $msg = shift->recv;
                 undef $cv;
                 if (defined $msg) {
-                    if (!defined $type or $type eq '') {
-                        my $part = $msg->email->part_type('text/plain') //
-                            $msg->email;
-                        return $respond->(render template 'message.html', {
-                            body => $part->body,
-                            headers => $msg->headers,
-                        });
+                    if ($view eq '') {
+                        _message_view($respond, $msg);
                     }
-                    elsif ($type eq '.html') {
-                        my $part = $msg->email->part_type('text/html') //
-                            $msg->email->part_type('text/plain') //
-                            $msg->email;
-                        my $res = Plack::Response->new(200);
-                        $res->content_type('text/html');
-                        $res->body($part->body);
-                        return $respond->(render $res);
+                    elsif ($view eq '.txt') {
+                        _message_view_plain($respond, $msg);
                     }
-                    elsif ($type eq '.json') {
-                        my $res = Plack::Response->new(200);
-                        $res->content_type('application/json');
-                        $res->body(jsonify($msg->email));
-                        return $respond->(render $res);
+                    elsif ($view eq '.html') {
+                        _message_view_html($respond, $msg);
                     }
-                    elsif ($type eq '.txt') {
-                        my $res = Plack::Response->new(200);
-                        $res->content_type('text/plain');
-                        $res->body($msg->email->as_string);
-                        return $respond->(render $res);
+                    elsif ($view eq '.json') {
+                        _message_view_json($respond, $msg);
+                    }
+                    elsif ($view eq '/delete') {
+                        _message_delete($respond, $msg);
                     }
                 }
                 else {
@@ -79,8 +69,55 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$)' => sub {
                 }
             }
         );
-    }
+    };
 };
+
+sub _message_view {
+    my ($respond, $msg) = @_;
+    my $part = $msg->email->part_type('text/plain') // $msg->email;
+    return $respond->(render template 'message.html', {
+        body => $part->body,
+        headers => $msg->headers,
+    });
+}
+
+sub _message_view_plain {
+    my ($respond, $msg) = @_;
+    my $res = Plack::Response->new(200);
+    $res->content_type('text/plain');
+    $res->body($msg->email->as_string);
+    return $respond->(render $res);
+}
+
+sub _message_view_html {
+    my ($respond, $msg) = @_;
+    my $part = $msg->email->part_type('text/html') //
+        $msg->email->part_type('text/plain') //
+        $msg->email;
+    my $res = Plack::Response->new(200);
+    $res->content_type('text/html');
+    $res->body($part->body);
+    return $respond->(render $res);
+}
+
+sub _message_view_json {
+    my ($respond, $msg) = @_;
+    my $res = Plack::Response->new(200);
+    $res->content_type('application/json');
+    $res->body(jsonify($msg->email));
+    return $respond->(render $res);
+}
+
+sub _message_delete {
+    my ($respond, $msg) = @_;
+    my $cv = $msg->delete;
+    $cv->cb(sub {
+        my $res = Plack::Response->new(200);
+        $res->content_type('application/json');
+        $res->body(jsonify({result => JSON::true}));
+        return $respond->(render $res);
+    });
+}
 
 # Bin Pages
 get '^/bin$' => sub {

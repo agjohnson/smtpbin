@@ -117,6 +117,11 @@ sub save {
     return $cv;
 }
 
+sub delete {
+    my $self = shift;
+    return $self->db->del($self->db_key);
+}
+
 # Attributes
 sub _build_id {
     my $self = shift;

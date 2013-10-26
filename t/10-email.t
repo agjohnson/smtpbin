@@ -37,11 +37,11 @@ is($msg->body, "MAIN BODY\n\n", 'Main body');
 my $part;
 $part = $msg->part_type('text/plain');
 is($part->content_type, 'text/plain', 'Part content type');
-is($part->body, "PLAIN BODY\n\n", 'Part body');
+is($part->body, "PLAIN BODY", 'Part body');
 
 $part = $msg->part_type('text/html');
 is($part->content_type, 'text/html', 'Part content type');
-is($part->body, "HTML BODY\n\n", 'Part body');
+is($part->body, "HTML BODY", 'Part body');
 
 $part = $msg->part_type('text/foobar');
 ok(!defined $part, 'Missing part content type');

@@ -1,4 +1,4 @@
-{{>header.html}}
+: include header;
 
 <div class='email'>
 
@@ -127,4 +127,4 @@
 
 </div>
 
-{{>footer.html}}
+: include footer;

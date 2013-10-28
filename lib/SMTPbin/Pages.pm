@@ -27,7 +27,7 @@ get '^[/]*$' => sub {
 get '^/index$' => sub {
     return sub {
         my $respond = shift;
-        my $res = template('index.html');
+        my $res = template('index.tpl');
         $res->headers->header('Cache-Control' => 'max-age=7200');
         return $respond->(render $res);
     };
@@ -75,7 +75,9 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$|/delete$)' => sub {
 sub _message_view {
     my ($respond, $msg) = @_;
     my $part = $msg->email->part_type('text/plain') // $msg->email;
-    return $respond->(render template 'message.html', {
+    return $respond->(render template 'message.tpl', {
+        message => $msg,
+        part => $part,
         body => $part->body,
         headers => $msg->headers,
     });
@@ -124,7 +126,7 @@ get '^/bin$' => sub {
     my $req = shift;
     return sub {
         my $respond = shift;
-        return $respond->(render template 'bin.html');
+        return $respond->(render template 'bin.tpl');
     };
 };
 
@@ -163,7 +165,7 @@ get '^/bin/([\w\-\_]+)($|.json$)' => sub {
                     return $respond->(render $res);
                 }
                 else {
-                    return $respond->(render template 'bin.html', {
+                    return $respond->(render template 'bin.tpl', {
                         id => $id,
                         messages => (length $bin->messages) ?
                             $bin->messages : undef,

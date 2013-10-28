@@ -5,8 +5,8 @@ use warnings;
 use 5.010;
 
 use Mouse;
-use AnyEvent;
-use Data::UUID;
+use AnyEvent; use Data::UUID; use DateTime::Format::DateParse;
+use DateTime::Duration::Fuzzy;
 
 use SMTPbin::Model;
 use SMTPbin::Model::Bin;
@@ -149,6 +149,13 @@ sub date {
     my $self = shift;
     return $self->email->header('Date')
       if (defined $self->email);
+}
+
+sub natural_date {
+    my $self = shift;
+    my $dt = DateTime::Format::DateParse->parse_datetime($self->date);
+    my $dt_now = DateTime->now;
+    return DateTime::Duration::Fuzzy::time_ago($dt, $dt_now);
 }
 
 sub from {

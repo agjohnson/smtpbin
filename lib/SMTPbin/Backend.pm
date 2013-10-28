@@ -6,7 +6,7 @@ use warnings;
 
 use Plack::Response;
 use Plack::Request;
-use Text::Caml;
+use Text::Xslate;
 use FindBin;
 use Cwd;
 use AnyEvent::Log;
@@ -68,17 +68,31 @@ sub abort ($) {
     return render(template($t_file));
 }
 
-# Return response rendered from TT2 template
+# Return response rendered from Xslate template
 sub template ($;$) {
     my $template = shift;
     my $args = ref $_[0] eq 'HASH' ? $_[0] : {@_};
 
     # Try to process the template, croak on errors, return response
-    my $t = Text::Caml->new(
-        templates_path => 'view/'
-    ) or die 'Error setting up template processor';
+    my $t = Text::Xslate->new(
+        path => './view/',
+        cache => 0,
+        suffix => '.tpl',
+        syntax => 'Kolon',
+        tag_start => '{%',
+        tag_end => '%}',
+        die_handler => sub {
+            die("Template error: @_");
+        },
+        warn_handler => sub {
+            die("Template warning: @_");
+        },
+        function => {
+            truncate => \&_util_truncate
+        }
+    );
 
-    my $output = $t->render_file($template, $args)
+    my $output = $t->render($template, $args)
       or die 'Problem with template';
 
     return Plack::Response->new(
@@ -86,6 +100,17 @@ sub template ($;$) {
         {'Content-type' => 'text/html'},
         [$output]
     );
+}
+
+sub _util_truncate {
+    my $string = shift;
+    my $length = shift // 70;
+
+    if (length($string) > $length) {
+        $string =~ s/^(.{0,$length})\b.*$/$1&#x2026;/s;
+    }
+
+    return $string;
 }
 
 # Renders a response

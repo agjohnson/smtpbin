@@ -48,20 +48,12 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$|/delete$)' => sub {
                 my $msg = shift->recv;
                 undef $cv;
                 if (defined $msg) {
-                    if ($view eq '') {
-                        _message_view($respond, $msg);
-                    }
-                    elsif ($view eq '.txt') {
-                        _message_view_plain($respond, $msg);
-                    }
-                    elsif ($view eq '.html') {
-                        _message_view_html($respond, $msg);
-                    }
-                    elsif ($view eq '.json') {
-                        _message_view_json($respond, $msg);
-                    }
-                    elsif ($view eq '/delete') {
+                    # Message actions
+                    if ($view eq '/delete') {
                         _message_delete($respond, $msg);
+                    }
+                    else {
+                        _message_view($respond, $msg, $view);
                     }
                 }
                 else {
@@ -73,6 +65,31 @@ get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$|/delete$)' => sub {
 };
 
 sub _message_view {
+    my ($respond, $msg, $view) = @_;
+
+    # Update state
+    $msg->state('read');
+    $msg->update;
+
+    # Show message
+    if ($view eq '') {
+        _message_view_full($respond, $msg);
+    }
+    elsif ($view eq '.txt') {
+        _message_view_plain($respond, $msg);
+    }
+    elsif ($view eq '.html') {
+        _message_view_html($respond, $msg);
+    }
+    elsif ($view eq '.json') {
+        _message_view_json($respond, $msg);
+    }
+    else {
+        return $respond->(abort(404));
+    }
+}
+
+sub _message_view_full {
     my ($respond, $msg) = @_;
     my $part = $msg->email->part_type('text/plain') // $msg->email;
     return $respond->(render template 'message.tpl', {

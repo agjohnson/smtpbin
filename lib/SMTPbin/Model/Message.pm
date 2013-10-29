@@ -33,6 +33,11 @@ has 'email' => (
     }
 );
 
+has 'state' => (
+    is => 'rw',
+    default => sub { 'unread' }
+);
+
 has 'policy' => (
     is => 'rw',
     default => sub { 'write' }
@@ -75,7 +80,10 @@ sub find {
                 bin => $class->json_attr('bin', $args{bin}),
                 email => SMTPbin::Model::Email->from_json(
                     $class->json_attr('email', $args{email})
-                )
+                ),
+                state => (defined $args{state}) ?
+                  $class->json_attr('state', $args{state}) :
+                  'unread'
             );
             $cv->send($msg);
         }
@@ -91,14 +99,9 @@ sub save {
     my $cv = AnyEvent->condvar;
 
     # Add message
-    if ($self->policy eq 'write') {
-        $cv->begin;
-        $self->db->multi;
-        $self->db->hset($self->db_key, 'bin', $self->json_attr('bin'));
-        $self->db->hset($self->db_key, 'email', $self->json_attr('email'));
-        $self->db->expire($self->db_key, 600);
-        $self->db->exec(sub { $cv->end });
-    }
+    $cv->begin;
+    my $cv_msg = $self->update;
+    $cv_msg->cb(sub { $cv->end; });
 
     # Add to bin
     $cv->begin;
@@ -113,6 +116,24 @@ sub save {
         $cv1 = $bin->count($self);
     }
     $cv1->cb(sub { $cv->end });
+
+    return $cv;
+}
+
+sub update {
+    my $self = shift;
+    my $cv = AnyEvent->condvar;
+
+    # Add message
+    if ($self->policy eq 'write') {
+        $cv->begin;
+        $self->db->multi;
+        $self->db->hset($self->db_key, 'bin', $self->json_attr('bin'));
+        $self->db->hset($self->db_key, 'email', $self->json_attr('email'));
+        $self->db->hset($self->db_key, 'state', $self->json_attr('state'));
+        $self->db->expire($self->db_key, 600);
+        $self->db->exec(sub { $cv->end });
+    }
 
     return $cv;
 }
@@ -168,6 +189,16 @@ sub recipient {
     my $self = shift;
     return $self->email->header('To')
       if (defined $self->email);
+}
+
+sub is_read {
+    my $self = shift;
+    return ($self->state eq 'read');
+}
+
+sub is_unread {
+    my $self = shift;
+    return ($self->state eq 'unread');
 }
 
 # Helpers

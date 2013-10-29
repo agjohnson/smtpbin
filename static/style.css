@@ -134,6 +134,11 @@ ul.bin li {
     padding: 0em .5em;
 }
 
+ul.bin li.state-read {
+    font-style: italic;
+    color: #bba;
+}
+
 ul.bin li > dl.header {
     margin: 0em;
 }

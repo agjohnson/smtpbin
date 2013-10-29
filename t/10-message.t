@@ -74,8 +74,14 @@ use Data::Dumper;
                 'X-SMTPbin-Id' => 'test',
             ],
             body => 'test'
-        )
+        ),
+        state => 'unread'
     );
+
+    # Helper functions
+    ok($msg->is_unread, 'Message is unread');
+
+    # Test save
     my $cv1 = $msg->save;
     $cv1->cb(sub {
         pass('Saving message');
@@ -95,7 +101,16 @@ use Data::Dumper;
             is($found->body, 'test', 'Fetched body');
             is($found->id, 'test', 'Fetched id');
             is($found->bin, 'test', 'Fetched bin');
+            is($found->state, 'unread', 'Fetched state');
         }
+
+        ok($found->is_unread, 'Fetched unread');
+        $found->state('read');
+        ok($found->is_read, 'Fetched state is read');
+        my $cv2 = $found->save(sub {
+            pass('Saved message again');
+        });
+        $cv2->recv;
     });
 
     # Save message from email

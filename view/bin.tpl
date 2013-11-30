@@ -24,21 +24,25 @@ function redirect (form) {
 : }
 
 : if ($messages) {
-<ul class='bin'>
-    : for $messages -> $message {
-  <li id="message-{% $message.id %}" class="state-{% $message.state %}">
-    <div class='subject'>{% $message.subject | truncate | mark_raw %}</div>
-    <div class='links'>
-      <span class='time'>{% $message.natural_date %}</span>
-      <span>-</span>
-      <span>view
-        <a href="#" onClick="view_message('{% $message.id %}');">message</a><span>, </span><a href="#" onClick="view_message('{% $message.id %}', 'html');">html</a><span> or </span><a href="#" onClick="view_message('{% $message.id %}', 'txt');">raw</a></span></span>
-      <span>-</span>
-      <span><a href="#" onClick="delete_message('{% $message.id %}');">delete</a></span>
-    </div>
-  </li>
-    : }
+
+<ul id='bin' class='bin'>
 </ul>
+
+<script>
+  var messages = new Messages();
+  var message_view = new MessageView({model: messages});
+
+    : for $messages -> $message {
+  messages.add({
+    id: "{% $message.id %}",
+    subject: "{% $message.subject | truncate | mark_raw %}",
+    datetime: "{% $message.natural_date %}",
+    state: "{% $message.state %}"
+  });
+
+    : }
+</script>
+
 : } else {
 <div class='email'>
     : if ($id) {

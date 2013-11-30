@@ -1,0 +1,10 @@
+{
+  "name": "SMTPbin",
+  "version": "0.0.1",
+  "dependencies": {
+    "browserify": "*",
+    "jquery-browserify": "*",
+    "backbone": "*",
+    "underscore": "*"
+  }
+}

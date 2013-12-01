@@ -5,7 +5,7 @@ function redirect (form) {
     for (var i = 0; i < form.elements.length; i++) {
         var field = form.elements[i];
         if (field.name ==  'bin_id') {
-            var url = "/bin/" + encodeURIComponent(field.value);
+            var url = "/view/bin/" + encodeURIComponent(field.value);
             window.location.href = url;
         }
     }
@@ -23,27 +23,6 @@ function redirect (form) {
 </h2>
 : }
 
-: if ($messages) {
-
-<ul id='bin' class='bin'>
-</ul>
-
-<script>
-  var messages = new Messages();
-  var message_view = new MessageView({model: messages});
-
-    : for $messages -> $message {
-  messages.add({
-    id: "{% $message.id %}",
-    subject: "{% $message.subject | truncate | mark_raw %}",
-    datetime: "{% $message.natural_date %}",
-    state: "{% $message.state %}"
-  });
-
-    : }
-</script>
-
-: } else {
 <div class='email'>
     : if ($id) {
   <div class='header'>
@@ -59,7 +38,7 @@ function redirect (form) {
   <h2>New Message Bin</h2>
 
   <p style='white-space: normal;'>
-    Create a <a href='/bin/random'>random</a> message bin, or create a named
+    Create a <a href='/view/bin/random'>random</a> message bin, or create a named
     message bin.
   </p>
 
@@ -70,6 +49,15 @@ function redirect (form) {
   </form>
     : }
 </div>
-: }
+
+<ul id='bin' class='bin'>
+</ul>
+
+<script>
+  var bin = new Bin({id: '{% $id %}'});
+  var bin_view = new BinView({
+    model: bin
+  });
+</script>
 
 : include footer;

@@ -34,7 +34,7 @@ get '^/index$' => sub {
 };
 
 # Message
-get '^/message/([0-9A-Za-z\-]+)($|.txt$|.html$|.json$|/delete$)' => sub {
+get '^/view/message/([0-9A-Za-z\-]+)($|.txt$|.html$)' => sub {
     my ($req, $id, $view) = @_;
 
     return sub {
@@ -81,9 +81,6 @@ sub _message_view {
     elsif ($view eq '.html') {
         _message_view_html($respond, $msg);
     }
-    elsif ($view eq '.json') {
-        _message_view_json($respond, $msg);
-    }
     else {
         return $respond->(abort(404));
     }
@@ -119,27 +116,8 @@ sub _message_view_html {
     return $respond->(render $res);
 }
 
-sub _message_view_json {
-    my ($respond, $msg) = @_;
-    my $res = Plack::Response->new(200);
-    $res->content_type('application/json');
-    $res->body(jsonify($msg->email));
-    return $respond->(render $res);
-}
-
-sub _message_delete {
-    my ($respond, $msg) = @_;
-    my $cv = $msg->delete;
-    $cv->cb(sub {
-        my $res = Plack::Response->new(200);
-        $res->content_type('application/json');
-        $res->body(jsonify({result => JSON::true}));
-        return $respond->(render $res);
-    });
-}
-
 # Bin Pages
-get '^/bin$' => sub {
+get '^/view/bin$' => sub {
     my $req = shift;
     return sub {
         my $respond = shift;
@@ -147,7 +125,7 @@ get '^/bin$' => sub {
     };
 };
 
-get '^/bin/random$' => sub {
+get '^/view/bin/random$' => sub {
     my $req = shift;
     my $bin = SMTPbin::Model::Bin->random;
     return sub {
@@ -158,7 +136,7 @@ get '^/bin/random$' => sub {
     };
 };
 
-get '^/bin/([\w\-\_]+)($|.json$)' => sub {
+get '^/view/bin/([\w\-\_]+)$' => sub {
     my ($req, $id, $type) = @_;
 
     # TODO more search fields here
@@ -189,26 +167,6 @@ get '^/bin/([\w\-\_]+)($|.json$)' => sub {
                         search => \%search
                     });
                 }
-            }
-        );
-    }
-};
-
-get '^/bin/([\w\-\_]+)/stats.json$' => sub {
-    my ($req, $id) = @_;
-    $id = sprintf('bin:%s', $id);
-    return sub {
-        my $respond = shift;
-        logger(debug => sprintf('Searching for stats: %s', $id));
-        my $cv; $cv = SMTPbin::Model::Stats->find(
-            id => $id,
-            cb => sub {
-                my $stats = shift->recv;
-                undef $cv;
-                my $res = Plack::Response->new(200);
-                $res->content_type('application/json');
-                $res->body(jsonify($stats));
-                return $respond->(render $res);
             }
         );
     }

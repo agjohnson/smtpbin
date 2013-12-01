@@ -8,29 +8,23 @@ var backbone = require('backbone'),
   var $ = backbone.$ = jquery;
   var _ = backbone._ = underscore;
 
-  // Backbone options
-  backbone.emulateHTTP = true;
-
   // Message Object
   var Message = backbone.Model.extend({
     urlRoot: '/message',
     urlView: function (view) {
       if (view == 'html') {
-        return this.url() + '.html';
+        return '/view' + this.url() + '.html';
       } else if (view == 'txt') {
-        return this.url() + '.txt';
+        return '/view' + this.url() + '.txt';
       } else {
-        return this.url();
+        return '/view' + this.url();
       }
-    },
-    sync : function (method, model, options) {
-      options = options || {};
-      if (method == 'delete') {
-        options.url = model.url() + '/delete';
-      }
-
-      backbone.sync(method, model, options);
     }
+  });
+
+  // Bin Object
+  var Bin = backbone.Model.extend({
+    urlRoot: '/bin',
   });
 
   // Collection
@@ -39,17 +33,30 @@ var backbone = require('backbone'),
   });
 
   // Views
-  var MessageListView = backbone.View.extend({
+  var BinView = backbone.View.extend({
     el: '#bin',
     initialize: function () {
-      this.listenTo(this.model, 'add', this.addOne);
+      this.messages = new Messages({model: Message});
+      this.listenTo(this.messages, 'add', this.addOne);
+
+      this.listenTo(this.model, 'change', this.render);
+      this.model.fetch();
     },
     addOne: function (model) {
       var message_view = new MessageView({model: model});
       $(this.$el).append(message_view.render().el);
+    },
+    render: function (model) {
+      var messages = this.model.get('messages');
+      var bin = this;
+      _.each(messages, function (message) {
+        msg = new Message(message);
+        bin.messages.add(msg);
+      });
     }
   });
 
+  // Single message view
   var MessageView = backbone.View.extend({
     tagName: 'li',
     initialize: function () {
@@ -60,30 +67,34 @@ var backbone = require('backbone'),
     render: function () {
       $(this.$el)
         .attr('id', 'message-' + this.model.get('id'))
-        .addClass('state-' + this.model.get('state'));
+        .addClass('state-' + this.model.get('state'))
+        .empty();
 
+      var subject = this.model.get('subject').replace(
+        /^(.{70}[^\s]*).*/, "$1"
+      ) + "\u2026";
       var el_subject = $('<div>')
         .addClass('subject')
-        .html(this.model.get('subject'));
+        .html(subject);
 
       // Links
       var el_time = $('<span>')
         .addClass('time')
-        .html(this.model.get('datetime'));
+        .html(this.model.get('date'));
 
       var el_view_text = $('<a>')
         .addClass('view')
-        .attr('href', this.model.urlView())
+        .attr('href', '#')
         .html('view');
 
       var el_view_html = $('<a>')
-        .addClass('view')
-        .attr('href', this.model.urlView('html'))
+        .addClass('view-html')
+        .attr('href', '#')
         .html('html');
 
       var el_view_raw = $('<a>')
-        .addClass('view')
-        .attr('href', this.model.urlView('txt'))
+        .addClass('view-txt')
+        .attr('href', '#')
         .html('raw');
 
       var el_delete = $('<span>')
@@ -112,10 +123,16 @@ var backbone = require('backbone'),
     },
     events: {
       'click .delete': 'clear',
-      'click .view': 'view'
+      'click .view': function (ev) { this.view(ev); },
+      'click .view-html': function (ev) { this.view(ev, 'html'); },
+      'click .view-txt': function (ev) { this.view(ev, 'txt'); },
     },
-    view: function () {
+    view: function (ev, format) {
+      ev.preventDefault();
       this.$el.addClass('state-read');
+      this.model.set('state', 'read');
+      this.model.save();
+      window.location = this.model.urlView(format);
     },
     clear: function () {
       this.model.destroy();
@@ -124,5 +141,6 @@ var backbone = require('backbone'),
 
   window.Message = Message;
   window.Messages = Messages;
-  window.MessageView = MessageListView;
+  window.Bin = Bin;
+  window.BinView = BinView;
 })();

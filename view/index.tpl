@@ -43,7 +43,7 @@
   </p>
 
   <p style='white-space: normal;'>
-    Claim a <a href='/bin/random'>random bin</a>, or <a href='/bin'>create one</a>
+    Claim a <a href='/view/bin/random'>random bin</a>, or <a href='/view/bin'>create one</a>
     manually.
   </p>
 
@@ -55,10 +55,9 @@
   </p>
 
   <ul>
-    <li><a href='/bin/foobar.json'>/bin/:id.json</a> - return bin <b>id</b> as JSON</li>
-    <li><a href='/bin/foobar/stats.json'>/bin/:id/stats.json</a> - return stats for bin <b>id</b> as JSON</li>
-    <li><a href='/bin/random.json'>/bin/random.json</a> - return random unused bin as JSON</li>
-    <li><a href='/message/foobar.json'>/message/:id.json</a> - return message <b>id</b> as JSON</li>
+    <li><a href='/bin/foobar'>/bin/:id</a> - return bin <b>id</b> as JSON</li>
+    <li><a href='/bin/foobar/stats'>/bin/:id/stats</a> - return stats for bin <b>id</b> as JSON</li>
+    <li><a href='/message/foobar'>/message/:id</a> - return message <b>id</b> as JSON</li>
   </ul>
 
   <h2>Recipients<br/>----------</h2>

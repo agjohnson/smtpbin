@@ -10,6 +10,7 @@ use Config::Any;
 use Exporter 'import';
 our @EXPORT = qw/
     jsonify
+    decode_body
     config
 /;
 
@@ -21,6 +22,16 @@ sub jsonify {
     return JSON->new
       ->allow_nonref->allow_blessed->convert_blessed
       ->encode($obj);
+}
+
+sub decode_body {
+    my $req = shift;
+    if ($req->content_type == 'application/json') {
+        return JSON->new
+          ->allow_nonref
+          ->decode($req->content);
+    }
+    return {};
 }
 
 # Config file

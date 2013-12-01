@@ -13,7 +13,7 @@ use AnyEvent::Log;
 
 use Exporter 'import';
 our @EXPORT = qw/
-    route get post put delete
+    route get post put del
     template render abort
     logger
 /;
@@ -54,7 +54,7 @@ sub route {
 sub get ($&) { route('GET', @_) }
 sub post ($&) { route('POST', @_) }
 sub put ($&) { route('PUT', @_) }
-sub delete ($&) { route('DELETE', @_) }
+sub del ($&) { route('DELETE', @_) }
 
 # Return HTTP failure
 sub abort ($) {

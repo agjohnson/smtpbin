@@ -17,7 +17,8 @@ has 'id' => (
 );
 
 has 'messages' => (
-    is => 'rw'
+    is => 'rw',
+    default => sub { [] }
 );
 
 
@@ -121,8 +122,10 @@ sub TO_JSON {
     my $self = shift;
     return {
         id => $self->id,
-        messages => (defined $self->messages) ?
-          map { $_ } @{$self->messages} : undef
+        messages => [
+            (defined $self->messages) ?
+              map { $_ } @{$self->messages} : undef
+        ]
     };
 }
 

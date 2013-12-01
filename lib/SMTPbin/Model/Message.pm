@@ -5,7 +5,9 @@ use warnings;
 use 5.010;
 
 use Mouse;
-use AnyEvent; use Data::UUID; use DateTime::Format::DateParse;
+use AnyEvent;
+use Data::UUID;
+use DateTime::Format::DateParse;
 use DateTime::Duration::Fuzzy;
 
 use SMTPbin::Model;
@@ -223,7 +225,9 @@ sub TO_JSON {
         bin => $self->bin,
         recipient => $self->recipient,
         sender => $self->from,
-        subject => $self->subject
+        subject => $self->subject,
+        date => $self->natural_date,
+        state => $self->state
     };
 }
 

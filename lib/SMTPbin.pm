@@ -24,6 +24,7 @@ SMTPbin.org <3 email
 =cut
 
 use SMTPbin::Backend;
+use SMTPbin::API;
 use SMTPbin::Pages;
 use SMTPbin::Model;
 use SMTPbin::Util qw/config/;

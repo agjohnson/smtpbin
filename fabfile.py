@@ -49,11 +49,17 @@ def deploy():
             '*.pyc',
             '.git',
             'local/',
+            'node_modules/'
         ]
     )
+    env.npm = '/usr/pkg/bin/npm'
+    env.node_modules = '{build_path}/node_modules'.format(**env)
+    env.browserify = '{node_modules}/.bin/browserify'.format(**env)
     with localenv():
         with cd(env.build_path):
             run('carton install')
+            run('{npm} install'.format(**env))
+            run('{browserify} js/bin.js > static/bin.js'.format(**env))
     # TODO replace with twiggy reload
     #sudo('/etc/init.d/lighttpd reload')
     #run("varnishadm -T :2000 'url.purge .'")

@@ -6,8 +6,8 @@ use Test::More;
 plan tests => 9;
 
 use SMTPbin::Pages;
+use SMTPbin::API;
 use SMTPbin::Backend;
-use Data::Dumper;
 
 # Mock routes
 # TODO test other methods
@@ -33,11 +33,11 @@ sub _get_route {
 
 # Test routes
 is(_get_route('/')->[0], 1);
+is(_get_route('/view/message/foobar')->[0], 'foobar');
+is(_get_route('/view/message/foobar')->[1], '');
+is(_get_route('/view/message/foobar.txt')->[0], 'foobar');
+is(_get_route('/view/message/foobar.txt')->[1], '.txt');
+is(_get_route('/view/message/foobar.html')->[0], 'foobar');
+is(_get_route('/view/message/foobar.html')->[1], '.html');
 is(_get_route('/message/foobar')->[0], 'foobar');
-is(_get_route('/message/foobar')->[1], '');
-is(_get_route('/message/foobar.txt')->[0], 'foobar');
-is(_get_route('/message/foobar.txt')->[1], '.txt');
-is(_get_route('/message/foobar.html')->[0], 'foobar');
-is(_get_route('/message/foobar.html')->[1], '.html');
-is(_get_route('/message/foobar/delete')->[0], 'foobar');
-is(_get_route('/message/foobar/delete')->[1], '/delete');
+is(_get_route('/message/foobar')->[1], undef);

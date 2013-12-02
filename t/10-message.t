@@ -4,7 +4,7 @@ use warnings;
 
 use Test::MockModule;
 use Test::More;
-plan tests => 9;
+plan tests => 13;
 
 use SMTPbin::Model::Message;
 use SMTPbin::Model::Email;

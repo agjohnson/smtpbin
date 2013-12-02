@@ -108,7 +108,7 @@ sub count {
 
 # Attributes
 sub url {
-    return sprintf('/bin/%s', shift->id);
+    return sprintf('/view/bin/%s', shift->id);
 }
 
 sub db_key {
